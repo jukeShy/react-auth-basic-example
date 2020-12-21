@@ -1,25 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import { useContext } from 'react';
+import { BrowserRouter, Route, Redirect } from 'react-router-dom';
+import { AuthProvider, AuthContext } from './context/AuthProvider';
+import { Home } from './pages/Home';
+import { Login } from './pages/Login';
 
-function App() {
+const ProtectedRoute = ({ children, ...rest }) => {
+  const auth = useContext(AuthContext);
+  const { isLogged } = auth;
+
+  console.log(isLogged);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <Route
+      {...rest}
+      render={() => {
+        return isLogged ? children : <Redirect to='/login' />;
+      }}
+    />
+  );
+};
+
+const App = () => {
+  return (
+    <div>
+      <AuthProvider>
+        <BrowserRouter>
+          <ProtectedRoute path='/' exact>
+            <Home />
+          </ProtectedRoute>
+          <Route path='/login' exact component={Login} />
+        </BrowserRouter>
+      </AuthProvider>
     </div>
   );
-}
+};
 
-export default App;
+export { App };
